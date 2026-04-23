@@ -19,7 +19,7 @@
       --text-dim: #7a6d5e;
       --border: rgba(245,158,11,0.18);
     }
-    html, body { height: 100%; overflow: hidden; }
+    html, body { height: 100%; overflow-x: hidden; overflow-y: auto; }
     body {
       background: #080810;
       color: #c4b5a0;
@@ -36,7 +36,7 @@
       pointer-events: none; z-index: 0;
     }
     #viz-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.5; }
-    .player-shell { position: relative; z-index: 1; width: min(520px, 94vw); }
+    .player-shell { position: relative; z-index: 1; width: min(520px, 94vw); max-height: none; }
     .station-tag { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
     .station-dot {
       width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;
@@ -132,7 +132,7 @@
     .playlist { margin-top: 14px; border-top: 1px solid rgba(245,158,11,0.1); padding-top: 14px; }
     .playlist-header { display: flex; align-items: center; justify-content: space-between; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: #7a6d5e; margin-bottom: 10px; }
     .pl-count { font-size: 0.65rem; color: #7a6d5e; letter-spacing: 0.05em; }
-    .pl-scroll { max-height: 180px; overflow-y: auto; padding-right: 2px; }
+    .pl-scroll { max-height: 340px; overflow-y: auto; padding-right: 2px; }
     .pl-scroll::-webkit-scrollbar { width: 3px; }
     .pl-scroll::-webkit-scrollbar-track { background: transparent; }
     .pl-scroll::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.15); border-radius: 2px; }
@@ -557,7 +557,7 @@
     renderLyrics();
   }
 
-  function play(){if(tracks.length===0)return;setupAnalyser();audio.play();playing=true;vinyl.classList.remove('paused');vinyl.classList.add('spinning');tonearm.classList.add('playing');playIcon.innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';if(!rafId)drawViz();renderPlaylist();}
+  function play(){if(tracks.length===0)return;setupAnalyser();if(analyser&&analyser.context.state==='suspended'){analyser.context.resume();}dispArt.textContent='加载中...';audio.play().then(function(){dispArt.textContent=tracks[current]?tracks[current].artist:'';}).catch(function(e){console.warn('play error:',e);dispArt.textContent='播放失败 - '+e.message;playing=false;});playing=true;vinyl.classList.remove('paused');vinyl.classList.add('spinning');tonearm.classList.add('playing');playIcon.innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';if(!rafId)drawViz();renderPlaylist();}
   function pause(){audio.pause();playing=false;vinyl.classList.add('paused');vinyl.classList.remove('spinning');tonearm.classList.remove('playing');playIcon.innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';renderPlaylist();}
   function togglePlay(){if(tracks.length===0)return;playing?pause():play();}
 
@@ -573,6 +573,9 @@
     updateLyricLine(audio.currentTime);
   });
   audio.addEventListener('loadedmetadata',function(){totTimeEl.textContent=fmt(audio.duration);});
+  audio.addEventListener('error',function(){if(tracks.length>0){dispArt.textContent='无法加载音频 - 格式不支持或网络错误';console.warn('Audio error:',audio.error);}});
+  audio.addEventListener('waiting',function(){dispArt.textContent='缓冲中...';});
+  audio.addEventListener('playing',function(){if(tracks[current])dispArt.textContent=tracks[current].artist;});
   audio.addEventListener('ended',function(){current=(current+1)%tracks.length;loadTrack(current);play();});
 
   prBar.addEventListener('click',function(e){if(!audio.duration)return;var rect=prBar.getBoundingClientRect();audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;});
