@@ -153,9 +153,14 @@
     .pl-item:hover .pl-del { display: flex; }
     .pl-del:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
     .add-local { margin-top: 12px; display: flex; justify-content: center; }
-    .add-btn { background: none; border: 1px solid rgba(245,158,11,0.18); border-radius: 8px; padding: 7px 16px; font-size: 0.75rem; color: #7a6d5e; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; transition: all 0.2s; letter-spacing: 0.06em; }
+    .add-btn { background: none; border: 1px solid rgba(245,158,11,0.18); border-radius: 8px; padding: 7px 16px; font-size: 0.75rem; color: #7a6d5e; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; transition: all 0.2s; letter-spacing: 0.06em; pointer-events: none; }
     .add-btn:hover { border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.15); }
-    #file-input { display: none; }
+    #file-input-wrapper { position: relative; display: block; }
+    #file-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+    @media (hover: none) and (pointer: coarse) {
+      #file-input-wrapper { width: 100%; }
+      #file-input { pointer-events: all; }
+    }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.18); border-radius: 2px; }
@@ -197,7 +202,8 @@
         0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
         50% { box-shadow: 0 0 20px 4px rgba(245,158,11,0.2); }
       }
-      .add-local { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 90%, transparent); padding: 20px 0 12px; }
+      .add-local { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 90%, transparent); padding: 20px 16px 12px; margin: 0 -16px -16px; display: flex; justify-content: center; }
+      .add-local #file-input-wrapper { width: calc(100% - 32px); }
     }
   </style>
 </head>
@@ -599,7 +605,7 @@
     addFiles(files);
   };
 
-  addBtn.addEventListener('click',function(){fileInput.click();});
+  addBtn.addEventListener('click',function(e){e.preventDefault();fileInput.click();});
   fileInput.addEventListener('change',function(){addFiles(fileInput.files);});
 
   // 拖放支持 - 使用 document 级别的事件捕获
