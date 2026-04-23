@@ -308,11 +308,10 @@
 <script>
 (function(){
   'use strict';
-  alert('脚本开始执行');
   var DEMO=[
-    {title:'深夜通勤',artist:'城市白噪音',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',lyrics:'[00:00.00]深夜电台\n[00:05.00]城市的灯火渐行渐远\n[00:12.00]窗外的风景像电影画面\n[00:20.00]耳机里的旋律轻轻流淌\n[00:28.00]带我穿越这座不眠的城市\n[00:36.00]深夜的街道空旷而安静\n[00:44.00]只有音乐与我作伴\n[00:52.00]这一刻世界仿佛停止\n[01:00.00]只剩下心跳与旋律'},
-    {title:'海边的梦',artist:'Ambient Waves',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',lyrics:'[00:00.00]海边的梦\n[00:08.00]海浪轻轻拍打着沙滩\n[00:16.00]海风带来远方的呼唤\n[00:24.00]夕阳染红了整片天空\n[00:32.00]时间在这里变得缓慢\n[00:40.00]闭上眼睛听见海的歌声\n[00:48.00]让思绪随波浪飘向远方'},
-    {title:'星际旅人',artist:'Cosmos Beats',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',lyrics:'[00:00.00]星际旅人\n[00:06.00]穿越星河的旅人\n[00:14.00]在无尽的宇宙中漂流\n[00:22.00]每一颗星星都是一个故事\n[00:30.00]每一段旅程都是一次成长\n[00:38.00]黑暗中寻找着光芒\n[00:46.00]孤独中发现了自己'},
+    {title:'深夜通勤',artist:'城市白噪音',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',lyrics:'[00:00.00]深夜电台\\n[00:05.00]城市的灯火渐行渐远\\n[00:12.00]窗外的风景像电影画面\\n[00:20.00]耳机里的旋律轻轻流淌\\n[00:28.00]带我穿越这座不眠的城市\\n[00:36.00]深夜的街道空旷而安静\\n[00:44.00]只有音乐与我作伴\\n[00:52.00]这一刻世界仿佛停止\\n[01:00.00]只剩下心跳与旋律'},
+    {title:'海边的梦',artist:'Ambient Waves',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',lyrics:'[00:00.00]海边的梦\\n[00:08.00]海浪轻轻拍打着沙滩\\n[00:16.00]海风带来远方的呼唤\\n[00:24.00]夕阳染红了整片天空\\n[00:32.00]时间在这里变得缓慢\\n[00:40.00]闭上眼睛听见海的歌声\\n[00:48.00]让思绪随波浪飘向远方'},
+    {title:'星际旅人',artist:'Cosmos Beats',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',lyrics:'[00:00.00]星际旅人\\n[00:06.00]穿越星河的旅人\\n[00:14.00]在无尽的宇宙中漂流\\n[00:22.00]每一颗星星都是一个故事\\n[00:30.00]每一段旅程都是一次成长\\n[00:38.00]黑暗中寻找着光芒\\n[00:46.00]孤独中发现了自己'},
   ];
   var tracks=[];
   var current=0,playing=false;
@@ -407,7 +406,7 @@
     if(!lrcText)return[];
     var lines=lrcText.split('\n');
     var result=[];
-    var timeRegex=/[(d{2}):(d{2}).(d{2,3})]/g;
+    var timeRegex=/[(\d{2}):(\d{2}).(\d{2,3})]/g;
     for(var i=0;i<lines.length;i++){
       var line=lines[i].trim();
       if(!line)continue;
@@ -481,7 +480,7 @@
         var min=Math.floor(l.time/60);
         var sec=Math.floor(l.time%60);
         var ms=Math.floor((l.time%1)*100);
-        lrcText+='['+String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+'.'+String(ms).padStart(2,'0')+']'+l.text+'\n';
+        lrcText+='['+String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+'.'+String(ms).padStart(2,'0')+']'+l.text+'\\n';
       }
       lyricsTextarea.value=lrcText;
       lyricsEditBtn.textContent='取消';
@@ -645,46 +644,33 @@
   });
 
   // 页面调试信息
-  function log(msg){console.log(msg);}
-  
   // 加载默认歌单
   function loadDefaultTracks(cb){
-    alert('loadDefaultTracks被调用了');
     fetch(DEFAULT_TRACKS_URL)
       .then(function(r){
-        log('fetch响应状态: '+r.status);
         if(!r.ok)throw new Error('HTTP '+r.status);
         return r.json();
       })
       .then(function(data){
-        log('获取到数据类型: '+typeof data);
-        log('是否为数组: '+Array.isArray(data));
         if(Array.isArray(data)){
-          log('数据长度: '+data.length);
         }
         if(Array.isArray(data) && data.length>0){
           tracks=data.map(function(t){return Object.assign({},t);});
-          log('已加载 '+tracks.length+' 首默认曲目');
         }else{
-          log('数据格式不正确，使用演示曲目');
+
           for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
         }
-        log('当前tracks数量: '+tracks.length);
         if(cb)cb();
       })
       .catch(function(e){
-        log('加载失败: '+e.message);
         // 失败时使用演示曲目
         for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
-        log('回退后tracks数量: '+tracks.length);
         if(cb)cb();
       });
   }
   
   // 初始化
   loadDefaultTracks(function(){
-    log('初始化播放器, tracks数量: '+tracks.length);
-    alert('tracks数量: '+tracks.length+'\n请截图告诉我');
     loadTrack(0);
     renderPlaylist();
     drawViz();
