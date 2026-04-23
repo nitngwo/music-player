@@ -308,6 +308,7 @@
 <script>
 (function(){
   'use strict';
+  alert('脚本开始执行');
   var DEMO=[
     {title:'深夜通勤',artist:'城市白噪音',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',lyrics:'[00:00.00]深夜电台
 [00:05.00]城市的灯火渐行渐远
@@ -670,7 +671,7 @@
   
   // 加载默认歌单
   function loadDefaultTracks(cb){
-    log('开始加载默认歌单...');
+    alert('loadDefaultTracks被调用了');
     fetch(DEFAULT_TRACKS_URL)
       .then(function(r){
         log('fetch响应状态: '+r.status);
