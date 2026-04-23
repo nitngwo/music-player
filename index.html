@@ -665,32 +665,42 @@
     if(e.code==='ArrowLeft'){audio.currentTime=Math.max(audio.currentTime-10,0);}
   });
 
+  // 页面调试信息
+  var debugDiv=document.createElement('div');
+  debugDiv.style.cssText='position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:10px;font-size:12px;z-index:9999;max-width:300px;word-break:break-all;';
+  document.body.appendChild(debugDiv);
+  function log(msg){console.log(msg);debugDiv.innerHTML+=msg+'<br>';}
+  
   // 加载默认歌单
   function loadDefaultTracks(cb){
-    console.log('开始加载默认歌单...');
+    log('开始加载默认歌单...');
     fetch(DEFAULT_TRACKS_URL)
       .then(function(r){
-        console.log('fetch响应状态:',r.status);
+        log('fetch响应状态: '+r.status);
         if(!r.ok)throw new Error('HTTP '+r.status);
         return r.json();
       })
       .then(function(data){
-        console.log('获取到数据:',data);
+        log('获取到数据类型: '+typeof data);
+        log('是否为数组: '+Array.isArray(data));
+        if(Array.isArray(data)){
+          log('数据长度: '+data.length);
+        }
         if(Array.isArray(data) && data.length>0){
           tracks=data.map(function(t){return Object.assign({},t);});
-          console.log('已加载 '+tracks.length+' 首默认曲目');
+          log('已加载 '+tracks.length+' 首默认曲目');
         }else{
-          console.log('数据格式不正确，使用演示曲目');
+          log('数据格式不正确，使用演示曲目');
           for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
         }
-        console.log('当前tracks数量:',tracks.length);
+        log('当前tracks数量: '+tracks.length);
         if(cb)cb();
       })
       .catch(function(e){
-        console.log('加载默认曲目失败，使用演示曲目',e);
+        log('加载失败: '+e.message);
         // 失败时使用演示曲目
         for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
-        console.log('回退后tracks数量:',tracks.length);
+        log('回退后tracks数量: '+tracks.length);
         if(cb)cb();
       });
   }
