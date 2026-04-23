@@ -666,10 +666,7 @@
   });
 
   // 页面调试信息
-  var debugDiv=document.createElement('div');
-  debugDiv.style.cssText='position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:10px;font-size:12px;z-index:9999;max-width:300px;word-break:break-all;';
-  document.body.appendChild(debugDiv);
-  function log(msg){console.log(msg);debugDiv.innerHTML+=msg+'<br>';}
+  function log(msg){console.log(msg);}
   
   // 加载默认歌单
   function loadDefaultTracks(cb){
@@ -707,7 +704,8 @@
   
   // 初始化
   loadDefaultTracks(function(){
-    console.log('初始化播放器, tracks数量:',tracks.length);
+    log('初始化播放器, tracks数量: '+tracks.length);
+    alert('tracks数量: '+tracks.length+'\n请截图告诉我');
     loadTrack(0);
     renderPlaylist();
     drawViz();
