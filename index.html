@@ -152,7 +152,7 @@
     .pl-del { display: none; background: none; border: none; color: #7a6d5e; cursor: pointer; padding: 2px 4px; font-size: 14px; line-height: 1; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
     .pl-item:hover .pl-del { display: flex; }
     .pl-del:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
-    .add-local { margin-top: 12px; display: flex; justify-content: center; }
+    .add-section { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
     .add-btn { background: none; border: 1px solid rgba(245,158,11,0.18); border-radius: 8px; padding: 7px 16px; font-size: 0.75rem; color: #7a6d5e; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; transition: all 0.2s; letter-spacing: 0.06em; pointer-events: none; }
     .add-btn:hover { border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.15); }
     #file-input-wrapper { position: relative; display: block; }
@@ -161,6 +161,15 @@
       #file-input-wrapper { width: 100%; }
       #file-input { pointer-events: all; }
     }
+    .add-section { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .url-row { display: flex; gap: 8px; align-items: center; }
+    .url-input { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.15); border-radius: 8px; padding: 9px 12px; font-size: 0.8rem; color: #e8d5b7; font-family: 'Noto Sans SC', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
+    .url-input::placeholder { color: #5a5044; }
+    .url-input:focus { border-color: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.12); }
+    .url-go-btn { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 9px 18px; font-size: 0.8rem; color: #f59e0b; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; transition: all 0.2s; white-space: nowrap; }
+    .url-go-btn:hover { background: rgba(245,158,11,0.25); }
+    .url-go-btn:active { transform: scale(0.96); }
+    .file-row { display: flex; justify-content: center; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.18); border-radius: 2px; }
@@ -185,7 +194,7 @@
       .play-btn { width: 72px; height: 72px; }
       .ctrl-btn { width: 56px; height: 56px; }
       .add-btn { padding: 16px 24px; font-size: 1rem; border-width: 2px; background: rgba(245,158,11,0.1); color: #f59e0b; }
-      .add-local { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 80%, transparent); padding: 16px 0 8px; margin: 0 -16px -16px; }
+      .add-section { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 80%, transparent); padding: 16px 0 8px; margin: 0 -16px -16px; }
       .playlist { max-height: 280px; }
       .drop-overlay { display: none !important; }
       .lyrics-section { margin: 12px 0 0 0; }
@@ -202,8 +211,10 @@
         0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
         50% { box-shadow: 0 0 20px 4px rgba(245,158,11,0.2); }
       }
-      .add-local { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 90%, transparent); padding: 20px 16px 12px; margin: 0 -16px -16px; display: flex; justify-content: center; }
-      .add-local #file-input-wrapper { width: calc(100% - 32px); }
+      .add-section { position: sticky; bottom: 0; background: linear-gradient(to top, #0c0c15 90%, transparent); padding: 20px 16px 12px; margin: 0 -16px -16px; }
+      .url-input { padding: 14px 12px; font-size: 0.95rem; }
+      .url-go-btn { padding: 14px 20px; font-size: 0.95rem; }
+      .add-btn { padding: 12px 24px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -281,9 +292,15 @@
       </div>
       <div class="pl-scroll"><div id="pl-items"></div></div>
     </div>
-    <div class="add-local">
-      <button class="add-btn" id="add-btn">+ 添加本地音乐</button>
-      <input type="file" id="file-input" accept=".mp3,.wav,.ogg,.m4a,.flac,.aac,.opus" multiple />
+    <div class="add-section">
+      <div class="url-row">
+        <input type="url" class="url-input" id="url-input" placeholder="粘贴音乐链接直接播放…" />
+        <button class="url-go-btn" id="url-go-btn">播放</button>
+      </div>
+      <div class="file-row">
+        <button class="add-btn" id="add-btn">+ 本地文件</button>
+        <input type="file" id="file-input" accept=".mp3,.wav,.ogg,.m4a,.flac,.aac,.opus" multiple />
+      </div>
     </div>
   </div>
 </div>
@@ -335,6 +352,8 @@
   var dispArt=document.getElementById('disp-artist');
   var addBtn=document.getElementById('add-btn');
   var fileInput=document.getElementById('file-input');
+  var urlInput=document.getElementById('url-input');
+  var urlGoBtn=document.getElementById('url-go-btn');
   var dropOv=document.getElementById('drop-overlay');
   var volWave1=document.getElementById('vol-wave1');
   var volWave2=document.getElementById('vol-wave2');
@@ -605,8 +624,22 @@
     addFiles(files);
   };
 
+  function addByUrl(){
+    var url=urlInput.value.trim();
+    if(!url){urlInput.focus();return;}
+    try{new URL(url);}catch(e){urlInput.style.borderColor='#ef4444';setTimeout(function(){urlInput.style.borderColor='';},1500);return;}
+    var name=url.split('/').pop().split('?')[0]||'在线音乐';
+    name=decodeURIComponent(name.replace(/\.[^.]+$/,''))||'在线音乐';
+    tracks.push({title:name,artist:'在线链接',url:url,dur:''});
+    current=tracks.length-1;
+    loadTrack(current);play();renderPlaylist();
+    urlInput.value='';
+  }
+
   addBtn.addEventListener('click',function(e){e.preventDefault();fileInput.click();});
   fileInput.addEventListener('change',function(){addFiles(fileInput.files);});
+  urlGoBtn.addEventListener('click',addByUrl);
+  urlInput.addEventListener('keydown',function(e){if(e.key==='Enter')addByUrl();});
 
   // 拖放支持 - 使用 document 级别的事件捕获
   document.addEventListener('dragover',function(e){e.preventDefault();e.stopPropagation();dropOv.classList.add('visible');},false);
