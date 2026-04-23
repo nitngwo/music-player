@@ -667,25 +667,37 @@
 
   // 加载默认歌单
   function loadDefaultTracks(cb){
+    console.log('开始加载默认歌单...');
     fetch(DEFAULT_TRACKS_URL)
-      .then(function(r){return r.json();})
+      .then(function(r){
+        console.log('fetch响应状态:',r.status);
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return r.json();
+      })
       .then(function(data){
+        console.log('获取到数据:',data);
         if(Array.isArray(data) && data.length>0){
           tracks=data.map(function(t){return Object.assign({},t);});
           console.log('已加载 '+tracks.length+' 首默认曲目');
+        }else{
+          console.log('数据格式不正确，使用演示曲目');
+          for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
         }
+        console.log('当前tracks数量:',tracks.length);
         if(cb)cb();
       })
       .catch(function(e){
         console.log('加载默认曲目失败，使用演示曲目',e);
         // 失败时使用演示曲目
         for(var i=0;i<DEMO.length;i++){tracks.push(Object.assign({},DEMO[i]));}
+        console.log('回退后tracks数量:',tracks.length);
         if(cb)cb();
       });
   }
   
   // 初始化
   loadDefaultTracks(function(){
+    console.log('初始化播放器, tracks数量:',tracks.length);
     loadTrack(0);
     renderPlaylist();
     drawViz();
