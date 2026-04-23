@@ -93,7 +93,7 @@
     .lyrics-panel { display: none; background: rgba(0,0,0,0.25); border-radius: 12px; padding: 14px; position: relative; }
     .lyrics-panel.visible { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-    .lyrics-scroll { max-height: 120px; overflow-y: auto; text-align: center; }
+    .lyrics-scroll { max-height: 200px; overflow-y: auto; text-align: center; }
     .lyrics-scroll::-webkit-scrollbar { width: 3px; }
     .lyrics-scroll::-webkit-scrollbar-track { background: transparent; }
     .lyrics-scroll::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.15); border-radius: 2px; }
@@ -198,7 +198,7 @@
       .playlist { max-height: 280px; }
       .drop-overlay { display: none !important; }
       .lyrics-section { margin: 12px 0 0 0; }
-      .lyrics-panel { max-height: 40vh; }
+      .lyrics-panel { max-height: 50vh; }
       .track-info { margin-top: 16px; }
       .station-tag { margin-bottom: 16px; }
     }
@@ -406,7 +406,7 @@
     if(!lrcText)return[];
     var lines=lrcText.split('\n');
     var result=[];
-    var timeRegex=/[(\d{2}):(\d{2}).(\d{2,3})]/g;
+    var timeRegex=/\[(\d{2}):(\d{2})\.(\d{2,3})\]/g;
     for(var i=0;i<lines.length;i++){
       var line=lines[i].trim();
       if(!line)continue;
@@ -430,7 +430,7 @@
   // 渲染歌词
   function renderLyrics(){
     if(parsedLyrics.length===0){
-      lyricsScroll.innerHTML='<div class="lyrics-empty">暂无歌词<br><small>点击"编辑"添加歌词</small></div>';
+      lyricsScroll.innerHTML='<div class="lyrics-empty">暂无歌词</div>';
       return;
     }
     var html=[];
@@ -555,6 +555,11 @@
     parsedLyrics=parseLRC(t.lyrics||'');
     currentLyricIdx=-1;
     renderLyrics();
+    // 自动展开歌词面板
+    if(parsedLyrics.length>0){
+      lyricsPanel.classList.add('visible');
+      lyricsToggleBtn.classList.add('active');
+    }
   }
 
   function play(){if(tracks.length===0)return;setupAnalyser();if(analyser&&analyser.context.state==='suspended'){analyser.context.resume();}dispArt.textContent='加载中...';audio.play().then(function(){dispArt.textContent=tracks[current]?tracks[current].artist:'';}).catch(function(e){console.warn('play error:',e);dispArt.textContent='播放失败 - '+e.message;playing=false;});playing=true;vinyl.classList.remove('paused');vinyl.classList.add('spinning');tonearm.classList.add('playing');playIcon.innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';if(!rafId)drawViz();renderPlaylist();}
